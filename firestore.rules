@@ -1,0 +1,198 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (Pillar 1 Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Global Helpers
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'siddhants4567@gmail.com' && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // 1. User Profiles
+    match /users/{userId} {
+      allow get: if true;
+      allow list: if isSignedIn();
+      allow create: if isUser(userId) &&
+        isValidId(userId) &&
+        incoming().id == userId &&
+        incoming().keys().hasAll(['id', 'displayName', 'email', 'role']) &&
+        incoming().displayName is string && incoming().displayName.size() <= 80 &&
+        incoming().email is string && incoming().email.size() <= 128;
+      allow update: if (isUser(userId) || isAdmin()) &&
+        isValidId(userId) &&
+        incoming().id == existing().id &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'role', 'updatedAt']) &&
+        incoming().displayName is string && incoming().displayName.size() <= 80;
+      allow delete: if isAdmin();
+    }
+
+    // Admins Collection (Strictly protected)
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 2. Teams
+    match /teams/{teamId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() &&
+        isValidId(teamId) &&
+        incoming().id == teamId &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 60 &&
+        incoming().shortCode is string && incoming().shortCode.size() >= 2 && incoming().shortCode.size() <= 6 &&
+        incoming().city is string && incoming().city.size() <= 60;
+      allow update: if isSignedIn() &&
+        isValidId(teamId) &&
+        (existing().ownerId == request.auth.uid || isAdmin()) &&
+        incoming().id == existing().id &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 60;
+      allow delete: if isSignedIn() && isValidId(teamId) && (existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // 3. Players
+    match /players/{playerId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() &&
+        isValidId(playerId) &&
+        incoming().id == playerId &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 60 &&
+        incoming().teamId is string && incoming().teamId.size() <= 128;
+      allow update: if isSignedIn() &&
+        isValidId(playerId) &&
+        (existing().ownerId == request.auth.uid || isAdmin()) &&
+        incoming().id == existing().id &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 60;
+      allow delete: if isSignedIn() && isValidId(playerId) && (existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // 4. Matches
+    match /matches/{matchId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() &&
+        isValidId(matchId) &&
+        incoming().id == matchId &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().title is string && incoming().title.size() <= 100 &&
+        incoming().venue is string && incoming().venue.size() <= 100;
+      allow update: if isSignedIn() &&
+        isValidId(matchId) &&
+        incoming().id == existing().id &&
+        incoming().ownerId == existing().ownerId &&
+        (
+          existing().ownerId == request.auth.uid ||
+          (existing().assignedScorerIds is list && request.auth.uid in existing().assignedScorerIds) ||
+          isAdmin()
+        );
+      allow delete: if isSignedIn() && isValidId(matchId) && (existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // 5. Innings
+    match /innings/{inningsId} {
+      allow get: if true;
+      allow list: if true;
+      allow create, update: if isSignedIn() && isValidId(inningsId);
+      allow delete: if isSignedIn() && isValidId(inningsId) && isAdmin();
+    }
+
+    // 6. BallEvents
+    match /ballEvents/{eventId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() &&
+        isValidId(eventId) &&
+        incoming().id == eventId &&
+        incoming().scorerId == request.auth.uid &&
+        incoming().matchId is string && incoming().matchId.size() <= 128;
+      allow update: if isSignedIn() &&
+        isValidId(eventId) &&
+        incoming().id == existing().id &&
+        (incoming().scorerId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // 7. Tournaments
+    match /tournaments/{tournamentId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() &&
+        isValidId(tournamentId) &&
+        incoming().id == tournamentId &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().name is string && incoming().name.size() >= 3 && incoming().name.size() <= 80;
+      allow update: if isSignedIn() &&
+        isValidId(tournamentId) &&
+        (existing().ownerId == request.auth.uid || isAdmin()) &&
+        incoming().id == existing().id &&
+        incoming().ownerId == existing().ownerId;
+      allow delete: if isSignedIn() && isValidId(tournamentId) && (existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // 8. Tournament Teams
+    match /tournamentTeams/{docId} {
+      allow get: if true;
+      allow list: if true;
+      allow create, update, delete: if isSignedIn() && isValidId(docId);
+    }
+
+    // 9. Fixtures
+    match /fixtures/{fixtureId} {
+      allow get: if true;
+      allow list: if true;
+      allow create, update: if isSignedIn() && isValidId(fixtureId);
+      allow delete: if isSignedIn() && isValidId(fixtureId) && (existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // 10. Standings
+    match /standings/{standingId} {
+      allow get: if true;
+      allow list: if true;
+      allow create, update: if isSignedIn() && isValidId(standingId);
+      allow delete: if isSignedIn() && isValidId(standingId) && isAdmin();
+    }
+
+    // 11. Audit Logs
+    match /auditLogs/{logId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() &&
+        isValidId(logId) &&
+        incoming().id == logId &&
+        incoming().userId == request.auth.uid;
+      allow update, delete: if false; // Immutable audit logs!
+    }
+  }
+}

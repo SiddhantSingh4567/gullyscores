@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e" />
+      <stop offset="100%" stop-color="#15803d" />
+    </linearGradient>
+    <linearGradient id="limeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bef264" />
+      <stop offset="100%" stop-color="#84cc16" />
+    </linearGradient>
+    <linearGradient id="ballGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#991b1b" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background with rounded squircle -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect x="12" y="12" width="488" height="488" rx="100" fill="none" stroke="#22c55e" stroke-width="4" stroke-opacity="0.3" />
+
+  <!-- Cricket Wickets / Stumps in background -->
+  <g opacity="0.85">
+    <rect x="180" y="160" width="16" height="180" rx="8" fill="#e2e8f0" />
+    <rect x="248" y="160" width="16" height="180" rx="8" fill="#e2e8f0" />
+    <rect x="316" y="160" width="16" height="180" rx="8" fill="#e2e8f0" />
+    <!-- Bails -->
+    <rect x="172" y="146" width="76" height="14" rx="6" fill="url(#limeGrad)" />
+    <rect x="264" y="146" width="76" height="14" rx="6" fill="url(#limeGrad)" />
+  </g>
+
+  <!-- Cricket Bat diagonally -->
+  <g transform="rotate(-38 256 256)">
+    <!-- Handle -->
+    <rect x="244" y="50" width="24" height="110" rx="10" fill="#f8fafc" />
+    <!-- Grip wraps -->
+    <line x1="244" y1="75" x2="268" y2="75" stroke="#0f172a" stroke-width="3" />
+    <line x1="244" y1="95" x2="268" y2="95" stroke="#0f172a" stroke-width="3" />
+    <line x1="244" y1="115" x2="268" y2="115" stroke="#0f172a" stroke-width="3" />
+    <line x1="244" y1="135" x2="268" y2="135" stroke="#0f172a" stroke-width="3" />
+    <!-- Blade -->
+    <path d="M236 150 L276 150 L284 390 C284 410 268 420 256 420 C244 420 228 410 228 390 Z" fill="#d97706" />
+    <!-- Blade face highlight -->
+    <path d="M242 160 L270 160 L276 390 C276 405 264 412 256 412 C248 412 236 405 236 390 Z" fill="#f59e0b" />
+    <line x1="256" y1="170" x2="256" y2="390" stroke="#b45309" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Red Leather Cricket Ball with seam -->
+  <circle cx="340" cy="310" r="54" fill="url(#ballGrad)" />
+  <!-- Ball Highlight -->
+  <circle cx="324" cy="290" r="14" fill="#ffffff" opacity="0.35" />
+  <!-- Seam -->
+  <path d="M 302 338 C 322 318 358 302 378 282" fill="none" stroke="#fef08a" stroke-width="4" stroke-dasharray="4,4" />
+
+  <!-- Bottom Brand Text Monogram "GS" -->
+  <text x="256" y="468" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="34" font-weight="900" fill="#22c55e" text-anchor="middle" letter-spacing="3">GULLYSCORE</text>
+</svg>

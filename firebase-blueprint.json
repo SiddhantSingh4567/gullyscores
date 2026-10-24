@@ -1,0 +1,227 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public user profile information for players, scorers, and tournament organizers.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 80 },
+        "email": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["organizer", "scorer", "spectator", "admin"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "displayName", "email", "role"]
+    },
+    "Team": {
+      "title": "Team",
+      "description": "Cricket team profile including city, captain, and squad configuration.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 60, "minLength": 2 },
+        "shortCode": { "type": "string", "maxLength": 6, "minLength": 2 },
+        "city": { "type": "string", "maxLength": 60 },
+        "description": { "type": "string", "maxLength": 300 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "captainId": { "type": "string", "maxLength": 128 },
+        "viceCaptainId": { "type": "string", "maxLength": 128 },
+        "primaryColor": { "type": "string", "maxLength": 20 },
+        "homeVenue": { "type": "string", "maxLength": 100 },
+        "isPublic": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "shortCode", "city", "ownerId"]
+    },
+    "Player": {
+      "title": "Player",
+      "description": "Player record associated with a team with statistics and playing attributes.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "teamId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 60, "minLength": 2 },
+        "jerseyNumber": { "type": "integer" },
+        "role": { "type": "string", "enum": ["batter", "bowler", "allRounder", "wicketKeeper"] },
+        "battingStyle": { "type": "string", "enum": ["right", "left"] },
+        "bowlingStyle": { "type": "string", "enum": ["pace", "spin", "none"] },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "matches": { "type": "integer" },
+        "runs": { "type": "integer" },
+        "wickets": { "type": "integer" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "teamId", "name", "role", "ownerId"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "Complete match state, configurations, toss, playing squads, and status.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 100 },
+        "tournamentId": { "type": "string", "maxLength": 128 },
+        "venue": { "type": "string", "maxLength": 100 },
+        "scheduledDate": { "type": "string" },
+        "overs": { "type": "integer" },
+        "playersPerTeam": { "type": "integer" },
+        "status": { "type": "string", "enum": ["scheduled", "live", "completed", "abandoned", "cancelled"] },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "teamAId": { "type": "string", "maxLength": 128 },
+        "teamBId": { "type": "string", "maxLength": 128 },
+        "isPublic": { "type": "boolean" },
+        "currentInnings": { "type": "integer" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title", "venue", "overs", "status", "ownerId", "teamAId", "teamBId"]
+    },
+    "Innings": {
+      "title": "Innings",
+      "description": "Authoritative statistics and live state for a match innings.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "matchId": { "type": "string", "maxLength": 128 },
+        "inningsNumber": { "type": "integer" },
+        "battingTeamId": { "type": "string", "maxLength": 128 },
+        "bowlingTeamId": { "type": "string", "maxLength": 128 },
+        "totalRuns": { "type": "integer" },
+        "totalWickets": { "type": "integer" },
+        "legalBalls": { "type": "integer" },
+        "oversCompleted": { "type": "number" },
+        "isCompleted": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "matchId", "inningsNumber", "battingTeamId", "bowlingTeamId", "totalRuns", "totalWickets"]
+    },
+    "BallEvent": {
+      "title": "BallEvent",
+      "description": "Immutable ball-by-ball scoring event recorded transactionally.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "matchId": { "type": "string", "maxLength": 128 },
+        "inningsId": { "type": "string", "maxLength": 128 },
+        "sequenceNumber": { "type": "integer" },
+        "overNumber": { "type": "integer" },
+        "ballInOver": { "type": "integer" },
+        "legalBall": { "type": "boolean" },
+        "bowlerId": { "type": "string", "maxLength": 128 },
+        "strikerId": { "type": "string", "maxLength": 128 },
+        "nonStrikerId": { "type": "string", "maxLength": 128 },
+        "runsBat": { "type": "integer" },
+        "totalRunsOnBall": { "type": "integer" },
+        "scorerId": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string" },
+        "isUndone": { "type": "boolean" }
+      },
+      "required": ["id", "matchId", "inningsId", "sequenceNumber", "bowlerId", "strikerId", "scorerId"]
+    },
+    "Tournament": {
+      "title": "Tournament",
+      "description": "Tournament configuration, format, and participation rules.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 80, "minLength": 3 },
+        "city": { "type": "string", "maxLength": 60 },
+        "venue": { "type": "string", "maxLength": 100 },
+        "format": { "type": "string", "enum": ["league", "knockout", "league_knockout"] },
+        "teamCapacity": { "type": "integer" },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "isPublished": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["upcoming", "ongoing", "completed"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "city", "format", "ownerId", "isPublished", "status"]
+    },
+    "Standing": {
+      "title": "Standing",
+      "description": "Points table row for a team in a tournament including NRR.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tournamentId": { "type": "string", "maxLength": 128 },
+        "teamId": { "type": "string", "maxLength": 128 },
+        "teamName": { "type": "string", "maxLength": 60 },
+        "played": { "type": "integer" },
+        "won": { "type": "integer" },
+        "lost": { "type": "integer" },
+        "tied": { "type": "integer" },
+        "noResult": { "type": "integer" },
+        "points": { "type": "integer" },
+        "netRunRate": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "tournamentId", "teamId", "teamName", "played", "won", "lost", "points"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Audit trail for score revisions, undo actions, and administrative actions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "entityId": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 60 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "details": { "type": "string", "maxLength": 500 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "entityId", "action", "userId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Public profile details of registered users."
+    },
+    "/admins/{userId}": {
+      "schema": { "$ref": "UserProfile" },
+      "description": "Platform administrator entries for role escalation safety."
+    },
+    "/teams/{teamId}": {
+      "schema": "Team",
+      "description": "Team definitions created by organizers."
+    },
+    "/players/{playerId}": {
+      "schema": "Player",
+      "description": "Player squad records."
+    },
+    "/matches/{matchId}": {
+      "schema": "Match",
+      "description": "Match configuration and current progress state."
+    },
+    "/innings/{inningsId}": {
+      "schema": "Innings",
+      "description": "Authoritative match innings details and scorecards."
+    },
+    "/ballEvents/{eventId}": {
+      "schema": "BallEvent",
+      "description": "Ball-by-ball scoring event history."
+    },
+    "/tournaments/{tournamentId}": {
+      "schema": "Tournament",
+      "description": "Tournament records with rules and brackets."
+    },
+    "/tournamentTeams/{docId}": {
+      "schema": { "$ref": "Team" },
+      "description": "Tournament team registrations."
+    },
+    "/fixtures/{fixtureId}": {
+      "schema": "Match",
+      "description": "Tournament fixtures and schedule."
+    },
+    "/standings/{standingId}": {
+      "schema": "Standing",
+      "description": "Tournament points table records with Net Run Rate."
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Immutable audit trails for score corrections."
+    }
+  }
+}
